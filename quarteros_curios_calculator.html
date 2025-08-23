@@ -30,13 +30,12 @@
       .header {
         position: relative;
         width: 100%;
-        /* Increase the height of the header so that the artwork isn't
-           vertically cropped and adjust the background position to show
-           more of Quartero and the logo. */
-        height: 380px;
         background-image: url("https://clan.fastly.steamstatic.com/images/3703047/821b3c684fde1a1388f807fe68374b9eb7074f3e.png");
         background-size: cover;
-        /* Center both horizontally and vertically to capture more of the artwork */
+        /* On smaller screens we reduce the height and adjust positioning to avoid the
+           artwork taking up the entire viewport. Height values will be overridden
+           in media queries below. */
+        height: 240px;
         background-position: center top;
       }
 
@@ -67,12 +66,28 @@
       .subheader {
         width: 100%;
         overflow: hidden;
+        /* Give the subheader a fixed height on small screens; it will
+           be overridden for larger screens in media queries below. */
+        height: 200px;
       }
       .subheader img {
         display: block;
         width: 100%;
-        height: auto;
+        height: 100%;
         object-fit: cover;
+      }
+
+      /* Responsive adjustments for larger screens. When the viewport is
+         at least 768px wide, increase the heights of the header and
+         subheader to show more of the artwork without overwhelming the
+         page. */
+      @media (min-width: 768px) {
+        .header {
+          height: 320px;
+        }
+        .subheader {
+          height: 260px;
+        }
       }
 
       /* Main container card */
