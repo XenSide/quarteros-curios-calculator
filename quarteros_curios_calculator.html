@@ -63,6 +63,18 @@
         letter-spacing: 1px;
       }
 
+      /* Subheader image container and image styling */
+      .subheader {
+        width: 100%;
+        overflow: hidden;
+      }
+      .subheader img {
+        display: block;
+        width: 100%;
+        height: auto;
+        object-fit: cover;
+      }
+
       /* Main container card */
       .card {
         max-width: 840px;
@@ -231,7 +243,15 @@
     <div class="header">
       <h1>Quartero's Curios XP Calculator</h1>
     </div>
-    <div class="card">
+        <!-- Decorative image section below the main header. To improve the
+             appearance on wider desktop screens, we display the full event
+             key art below the title. We reference an image file located in
+             the repository so it loads correctly on GitHub Pages. -->
+        <div class="subheader">
+          <img src="quarteros_curios.png" alt="Quartero's Curios artwork" />
+        </div>
+
+        <div class="card">
       <h2>Plan Your Path to Level&nbsp;100</h2>
       <!-- Input for current level -->
       <div class="form-group">
