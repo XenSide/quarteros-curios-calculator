@@ -30,12 +30,14 @@
       .header {
         position: relative;
         width: 100%;
-        background-image: url("https://clan.fastly.steamstatic.com/images/3703047/821b3c684fde1a1388f807fe68374b9eb7074f3e.png");
+        /* Use the local event artwork for the header background so it loads reliably on GitHub Pages. */
+        background-image: url("quarteros_curios.png");
         background-size: cover;
         /* On smaller screens we reduce the height and adjust positioning to avoid the
            artwork taking up the entire viewport. Height values will be overridden
            in media queries below. */
-        height: 240px;
+        /* Reduce header height further on small screens so the artwork doesn't dominate the viewport. */
+        height: 200px;
         background-position: center top;
       }
 
@@ -62,30 +64,13 @@
         letter-spacing: 1px;
       }
 
-      /* Subheader image container and image styling */
-      .subheader {
-        width: 100%;
-        overflow: hidden;
-        /* Give the subheader a fixed height on small screens; it will
-           be overridden for larger screens in media queries below. */
-        height: 200px;
-      }
-      .subheader img {
-        display: block;
-        width: 100%;
-        height: 100%;
-        object-fit: cover;
-      }
 
       /* Responsive adjustments for larger screens. When the viewport is
-         at least 768px wide, increase the heights of the header and
-         subheader to show more of the artwork without overwhelming the
-         page. */
+         at least 768px wide, increase the height of the header to show more of
+         the artwork without overwhelming the page. */
       @media (min-width: 768px) {
         .header {
-          height: 320px;
-        }
-        .subheader {
+          /* On larger screens we allow the header to be slightly taller but still avoid overwhelming the page. */
           height: 260px;
         }
       }
@@ -258,13 +243,6 @@
     <div class="header">
       <h1>Quartero's Curios XP Calculator</h1>
     </div>
-        <!-- Decorative image section below the main header. To improve the
-             appearance on wider desktop screens, we display the full event
-             key art below the title. We reference an image file located in
-             the repository so it loads correctly on GitHub Pages. -->
-        <div class="subheader">
-          <img src="quarteros_curios.png" alt="Quartero's Curios artwork" />
-        </div>
 
         <div class="card">
       <h2>Plan Your Path to Level&nbsp;100</h2>
