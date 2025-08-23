@@ -1,0 +1,379 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Quartero's Curios XP Calculator</title>
+    <!-- Google fonts for a classical, Dota‑like feel -->
+    <link
+      href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&family=Open+Sans:wght@300;400;600&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      /* Reset some basic elements */
+      * {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+      }
+
+      html,
+      body {
+        height: 100%;
+        font-family: "Open Sans", sans-serif;
+        background-color: #0d0c0f;
+        color: #e6e6e6;
+        overflow-x: hidden;
+      }
+
+      /* Header section with event artwork */
+      .header {
+        position: relative;
+        width: 100%;
+        /* Increase the height of the header so that the artwork isn't
+           vertically cropped and adjust the background position to show
+           more of Quartero and the logo. */
+        height: 380px;
+        background-image: url("https://clan.fastly.steamstatic.com/images/3703047/821b3c684fde1a1388f807fe68374b9eb7074f3e.png");
+        background-size: cover;
+        /* Center both horizontally and vertically to capture more of the artwork */
+        background-position: center top;
+      }
+
+      /* dark overlay on the header to improve legibility */
+      .header::before {
+        content: "";
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: rgba(0, 0, 0, 0.6);
+      }
+
+      .header h1 {
+        position: absolute;
+        bottom: 20px;
+        left: 50%;
+        transform: translateX(-50%);
+        font-family: "Cinzel", serif;
+        color: #d8b370;
+        font-size: 2.4rem;
+        text-shadow: 0 0 10px rgba(0, 0, 0, 0.8);
+        letter-spacing: 1px;
+      }
+
+      /* Main container card */
+      .card {
+        max-width: 840px;
+        /* Position the card below the header rather than overlapping it */
+        margin: 20px auto 40px;
+        padding: 30px 40px;
+        background: rgba(20, 17, 25, 0.95);
+        border: 2px solid #6e523a;
+        border-radius: 12px;
+        box-shadow: 0 0 12px rgba(0, 0, 0, 0.7);
+      }
+
+      .card h2 {
+        font-family: "Cinzel", serif;
+        color: #d8b370;
+        margin-bottom: 20px;
+        text-align: center;
+      }
+
+      .form-group {
+        margin-bottom: 25px;
+      }
+
+      .form-group label {
+        display: block;
+        margin-bottom: 8px;
+        font-weight: 600;
+        color: #cdb79e;
+      }
+
+      /* Number input styling */
+      .form-group input[type="number"] {
+        width: 100%;
+        padding: 10px 14px;
+        font-size: 1rem;
+        border-radius: 6px;
+        border: 1px solid #6e523a;
+        background: #2a232e;
+        color: #e6e6e6;
+      }
+      .form-group input[type="number"]::-webkit-outer-spin-button,
+      .form-group input[type="number"]::-webkit-inner-spin-button {
+        -webkit-appearance: none;
+        margin: 0;
+      }
+
+      /* Range slider styling removed since win rate uses a numeric input */
+
+      /* Mode label styling */
+      .mode-label {
+        font-weight: 600;
+        color: #cdb79e;
+        margin: 0 8px;
+      }
+
+      /* Toggle switch container */
+      .toggle-wrapper {
+        display: flex;
+        align-items: center;
+        margin-top: 10px;
+      }
+
+      .switch {
+        position: relative;
+        display: inline-block;
+        width: 56px;
+        height: 28px;
+        margin-right: 12px;
+      }
+      .switch input {
+        opacity: 0;
+        width: 0;
+        height: 0;
+      }
+      .slider {
+        position: absolute;
+        cursor: pointer;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background-color: #3c2e40;
+        -webkit-transition: 0.4s;
+        transition: 0.4s;
+        border-radius: 34px;
+        border: 1px solid #6e523a;
+      }
+      .slider:before {
+        position: absolute;
+        content: "";
+        height: 20px;
+        width: 20px;
+        left: 4px;
+        bottom: 4px;
+        background-color: #b6925c;
+        -webkit-transition: 0.4s;
+        transition: 0.4s;
+        border-radius: 50%;
+      }
+      input:checked + .slider {
+        background-color: #5b3e25;
+      }
+      input:checked + .slider:before {
+        transform: translateX(28px);
+        background-color: #d8b370;
+      }
+
+      /* Result card */
+      .results {
+        background: rgba(34, 28, 40, 0.9);
+        border: 2px solid #6e523a;
+        border-radius: 10px;
+        padding: 20px 25px;
+        margin-top: 20px;
+      }
+      .results h3 {
+        font-family: "Cinzel", serif;
+        color: #d8b370;
+        margin-bottom: 16px;
+        text-align: center;
+      }
+      .results .stat {
+        margin-bottom: 10px;
+        font-size: 1rem;
+        color: #e6e6e6;
+      }
+      .results .stat span {
+        color: #d8b370;
+        font-weight: 600;
+      }
+
+      /* Progress bar */
+      .progress-container {
+        width: 100%;
+        height: 20px;
+        border: 1px solid #6e523a;
+        border-radius: 10px;
+        margin-top: 8px;
+        overflow: hidden;
+        background: #3c2e40;
+      }
+      .progress-bar {
+        height: 100%;
+        width: 0%;
+        background: linear-gradient(90deg, #7c529c, #b6925c);
+        border-radius: 9px;
+        transition: width 0.4s ease;
+      }
+      .progress-text {
+        margin-top: 6px;
+        font-size: 0.9rem;
+        text-align: right;
+        color: #cdb79e;
+      }
+      @media (max-width: 600px) {
+        .card {
+          padding: 20px;
+        }
+        .header h1 {
+          font-size: 1.8rem;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="header">
+      <h1>Quartero's Curios XP Calculator</h1>
+    </div>
+    <div class="card">
+      <h2>Plan Your Path to Level&nbsp;100</h2>
+      <!-- Input for current level -->
+      <div class="form-group">
+        <label for="currentLevel">Current Level</label>
+        <input
+          type="number"
+          id="currentLevel"
+          name="currentLevel"
+          min="0"
+          max="100"
+          placeholder="Enter your current level (0-100)"
+        />
+      </div>
+      <!-- Input for current XP within the current level -->
+      <div class="form-group">
+        <label for="currentXPInLevel">Current XP in Level</label>
+        <input
+          type="number"
+          id="currentXPInLevel"
+          name="currentXPInLevel"
+          min="0"
+          max="999"
+          placeholder="XP accumulated in this level (0-999)"
+        />
+      </div>
+      <!-- Input for win rate as a numeric field -->
+      <div class="form-group">
+        <label for="winrate">Win Rate (%)</label>
+        <input
+          type="number"
+          id="winrate"
+          name="winrate"
+          min="0"
+          max="100"
+          step="0.1"
+          value="50"
+          placeholder="Enter win rate (0-100)"
+        />
+      </div>
+      <!-- Game mode toggle: Normal on left, Turbo on right -->
+      <div class="form-group toggle-wrapper">
+        <span class="mode-label">Normal</span>
+        <label class="switch">
+          <input type="checkbox" id="modeToggle" />
+          <span class="slider"></span>
+        </label>
+        <span class="mode-label">Turbo</span>
+      </div>
+      <div class="results" id="results">
+        <h3>Results</h3>
+        <div class="stat">
+          Progress: <span id="progressText">0%</span>
+          <div class="progress-container">
+            <div class="progress-bar" id="progressBar"></div>
+          </div>
+        </div>
+        <div class="stat">
+          XP Remaining: <span id="xpRemaining">100,000</span>
+        </div>
+        <div class="stat">
+          Expected XP per Match: <span id="expectedXP">0</span>
+        </div>
+        <div class="stat">
+          Estimated Games Needed: <span id="gamesNeeded">0</span>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      (function () {
+        const XP_PER_LEVEL = 1000;
+        const LEVEL_MAX = 100;
+        const XP_NORMAL_WIN = 650;
+        const XP_NORMAL_LOSS = 250;
+        const XP_TURBO_WIN = 425;
+        const XP_TURBO_LOSS = 175;
+        const TOTAL_XP = LEVEL_MAX * XP_PER_LEVEL;
+
+        // DOM elements
+        const levelInput = document.getElementById("currentLevel");
+        const xpInLevelInput = document.getElementById("currentXPInLevel");
+        const winrateInput = document.getElementById("winrate");
+        const modeToggle = document.getElementById("modeToggle");
+        const progressBar = document.getElementById("progressBar");
+        const progressText = document.getElementById("progressText");
+        const xpRemainingSpan = document.getElementById("xpRemaining");
+        const expectedXPSpan = document.getElementById("expectedXP");
+        const gamesNeededSpan = document.getElementById("gamesNeeded");
+
+        function formatNumber(num) {
+          return num.toLocaleString();
+        }
+
+        function calculate() {
+          // Parse current level and XP within level
+          let level = parseInt(levelInput.value, 10);
+          if (isNaN(level) || level < 0) level = 0;
+          if (level > LEVEL_MAX) level = LEVEL_MAX;
+
+          let xpInLevel = parseInt(xpInLevelInput.value, 10);
+          if (isNaN(xpInLevel) || xpInLevel < 0) xpInLevel = 0;
+          if (xpInLevel > XP_PER_LEVEL - 1) xpInLevel = XP_PER_LEVEL - 1;
+
+          // Calculate the total accumulated XP based on level and XP in level
+          let currentXP = level * XP_PER_LEVEL + xpInLevel;
+          if (currentXP > TOTAL_XP) currentXP = TOTAL_XP;
+
+          // Win rate percentage
+          let winrate = parseFloat(winrateInput.value);
+          if (isNaN(winrate) || winrate < 0) winrate = 0;
+          if (winrate > 100) winrate = 100;
+
+          // Determine XP per match based on mode
+          const isTurbo = modeToggle.checked;
+          const winXP = isTurbo ? XP_TURBO_WIN : XP_NORMAL_WIN;
+          const lossXP = isTurbo ? XP_TURBO_LOSS : XP_NORMAL_LOSS;
+          const expectedXP =
+            (winrate / 100) * winXP + ((100 - winrate) / 100) * lossXP;
+
+          const xpRemaining = TOTAL_XP - currentXP;
+          const gamesNeeded =
+            xpRemaining > 0 ? Math.ceil(xpRemaining / expectedXP) : 0;
+
+          const progressPercent = (currentXP / TOTAL_XP) * 100;
+
+          // Update UI
+          progressBar.style.width = progressPercent + "%";
+          progressText.textContent = progressPercent.toFixed(2) + "%";
+          xpRemainingSpan.textContent = xpRemaining > 0 ? formatNumber(xpRemaining) : "0";
+          expectedXPSpan.textContent = expectedXP.toFixed(1);
+          gamesNeededSpan.textContent = gamesNeeded;
+        }
+
+        // Event listeners
+        levelInput.addEventListener("input", calculate);
+        xpInLevelInput.addEventListener("input", calculate);
+        winrateInput.addEventListener("input", calculate);
+        modeToggle.addEventListener("change", calculate);
+
+        // Initialise the calculator
+        calculate();
+      })();
+    </script>
+  </body>
+</html>
