@@ -22,7 +22,7 @@
         content: "";
         position: fixed; /* stick to viewport */
         inset: 0;
-        background-image: url("quarteros_curios.png"); /* <-- same path as before */
+        background-image: url("quarteros_curios.png"); /* <-- update path if needed */
         background-size: cover;
         background-position: center;
         background-attachment: fixed;
@@ -182,7 +182,7 @@
 
         <div class="form-group">
           <label for="currentLevel">Current Level</label>
-          <input type="number" id="currentLevel" placeholder="e.g. 37"/>
+          <input type="number" id="currentLevel" placeholder="e.g., 37"/>
         </div>
 
         <div class="form-group">
@@ -192,7 +192,7 @@
 
         <div class="form-group">
           <label for="winrate">Win Rate (%)</label>
-          <input type="number" id="winrate" placeholder="e.g. 45.5"/>
+          <input type="number" id="winrate" placeholder="e.g., 45.5"/>
         </div>
 
         <div class="form-group">
@@ -203,11 +203,11 @@
               <span class="tooltip">
                 Defaults reflect <strong>average durations for patch 7.39</strong>:
                 <strong>41&nbsp;min</strong> (Normal) and <strong>25&nbsp;min</strong> (Turbo).
-                You can override either at any time.
+                You can override either at any time. If left empty, those values are used for calculations.
               </span>
             </span>
           </label>
-          <input type="number" id="avgDuration" placeholder="e.g. 38 or 4"/>
+          <input type="number" id="avgDuration" placeholder="e.g., 38 or 4"/>
         </div>
 
         <div class="form-group toggle-wrapper">
@@ -221,7 +221,7 @@
 
         <div class="form-group">
           <label for="avgGamesPerDay">Average Games per Day <em>(optional)</em></label>
-          <input type="number" id="avgGamesPerDay" placeholder="e.g. 2.5"/>
+          <input type="number" id="avgGamesPerDay" placeholder="e.g., 2.5"/>
         </div>
 
         <div class="results">
@@ -265,9 +265,10 @@
 
         const el = (id) => document.getElementById(id);
         const modeToggle = el("modeToggle");
+        const avgDurationInput = el("avgDuration");
 
         /** Bind inputs: paste default on blur only when empty.
-         *  AvgDuration now *also* pastes default on empty (41/25) as requested.
+         *  AvgDuration also pastes default on empty (41/25) and updates on mode switch if it was default/empty.
          */
         function bindLooseNumber(id, { getDefault = () => "", pasteDefaultOnEmpty = true } = {}, onChange) {
           const input = el(id);
@@ -308,16 +309,26 @@
           (wr / 100) * (turbo ? XP_TURBO_WIN : XP_NORMAL_WIN) +
           ((100 - wr) / 100) * (turbo ? XP_TURBO_LOSS : XP_NORMAL_LOSS);
 
+        // When switching mode, if avgDuration is empty or equals the other mode's default, update it to the new default
+        function updateAvgDurationDefaultOnModeChange() {
+          const newDefault   = modeToggle.checked ? DEFAULT_TURBO_MIN  : DEFAULT_NORMAL_MIN;
+          const otherDefault = modeToggle.checked ? DEFAULT_NORMAL_MIN : DEFAULT_TURBO_MIN;
+          const val = avgDurationInput.value.trim();
+          if (val === "" || Number(val) === otherDefault) {
+            avgDurationInput.value = String(newDefault);
+          }
+        }
+
         function calc() {
           const now = new Date();
           const turbo = modeToggle.checked;
 
-          // Read inputs; use defaults only for math when empty/invalid (we do not overwrite typed values except on blur rule)
+          // Read inputs; use defaults only for math when empty/invalid (UI mutation only on blur or mode switch rule)
           let level      = numOr(el("currentLevel").value, 1);
           let xpInLevel  = numOr(el("currentXPInLevel").value, 0);
           let wr         = numOr(el("winrate").value, 50);
 
-          const durRaw = el("avgDuration").value;
+          const durRaw = avgDurationInput.value;
           let dur = durRaw === "" ? (turbo ? DEFAULT_TURBO_MIN : DEFAULT_NORMAL_MIN)
                                   : numOr(durRaw, turbo ? DEFAULT_TURBO_MIN : DEFAULT_NORMAL_MIN);
           if (!(dur > 0)) dur = turbo ? DEFAULT_TURBO_MIN : DEFAULT_NORMAL_MIN;
@@ -405,12 +416,15 @@
           el("currentLevel").value = "1";
           el("currentXPInLevel").value = "0";
           el("winrate").value = "50";
-          el("avgDuration").value = String(DEFAULT_NORMAL_MIN); // Default load in Normal
+          avgDurationInput.value = String(DEFAULT_NORMAL_MIN); // Default load in Normal
           // avgGamesPerDay stays empty (optional)
         }
 
         // Recalculate on interactions
-        modeToggle.addEventListener("change", calc);
+        modeToggle.addEventListener("change", () => {
+          updateAvgDurationDefaultOnModeChange();
+          calc();
+        });
         ["currentLevel","currentXPInLevel","winrate","avgDuration","avgGamesPerDay"].forEach(id=>{
           el(id).addEventListener("input", calc);
           el(id).addEventListener("change", calc);
