@@ -2,52 +2,102 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
     <title>Quartero's Curios XP Calculator</title>
-    <link
-      href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&family=Open+Sans:wght@300;400;600&display=swap"
-      rel="stylesheet"
-    />
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&family=Open+Sans:wght@300;400;600&display=swap" rel="stylesheet"/>
     <style>
       * { box-sizing: border-box; margin: 0; padding: 0; }
+
       html, body {
         height: 100%;
         font-family: "Open Sans", sans-serif;
-        background-color: #0d0c0f;
+        background-color: #0d0c0f; /* fallback color under the image */
         color: #e6e6e6;
         overflow-x: hidden;
       }
 
-      /* Header */
-      .header {
-        position: relative; width: 100%; height: 280px;
-        background-image: url("quarteros_curios.png");
-        background-size: cover; background-position: 0px -330px;
+      /* Full-site background image (moved from header) */
+      body { position: relative; }
+      body::before {
+        content: "";
+        position: fixed; /* stick to viewport */
+        inset: 0;
+        background-image: url("quarteros_curios.png"); /* <-- same path as before */
+        background-size: cover;
+        background-position: center;
+        background-attachment: fixed;
+        opacity: 0.32;              /* make it visible but subtle */
+        z-index: 0;                 /* sits behind content wrapper */
+        pointer-events: none;
       }
-      .header::before { content: ""; position: absolute; inset: 0; background: rgba(0,0,0,0.6); }
+
+      /* Everything visible sits in .page above the bg */
+      .page { position: relative; z-index: 1; }
+
+      /* Header (75px, centered text, darker translucent strip) */
+      .header {
+        position: relative;
+        width: 100%;
+        height: 75px;
+        display: flex;
+        align-items: center;      /* vertical center */
+        justify-content: center;  /* horizontal center */
+      }
+      .header::before {
+        content: "";
+        position: absolute;
+        inset: 0;
+        background: rgba(0,0,0,0.65); /* darken the banner */
+        pointer-events: none;
+      }
       .header h1 {
-        position: absolute; bottom: 20px; left: 50%; transform: translateX(-50%);
-        font-family: "Cinzel", serif; color: #d8b370; font-size: 2.4rem;
-        text-shadow: 0 0 10px rgba(0, 0, 0, 0.8); letter-spacing: 1px;
+        position: relative; /* above overlay */
+        font-family: "Cinzel", serif;
+        color: #d8b370;
+        font-size: 1.8rem;
+        letter-spacing: 1px;
+        text-shadow: 0 0 10px rgba(0,0,0,0.8);
+        margin: 0;
       }
 
       /* Card */
       .card {
-        max-width: 840px; margin: 20px auto 40px; padding: 30px 40px;
-        background: rgba(20,17,25,0.95); border: 2px solid #6e523a; border-radius: 12px;
+        max-width: 840px;
+        margin: 20px auto 40px;
+        padding: 30px 40px;
+        background: rgba(20,17,25,0.95);
+        border: 2px solid #6e523a;
+        border-radius: 12px;
         box-shadow: 0 0 12px rgba(0,0,0,0.7);
       }
-      .card h2 { font-family: "Cinzel", serif; color: #d8b370; margin-bottom: 20px; text-align: center; }
+      .card h2 {
+        font-family: "Cinzel", serif;
+        color: #d8b370;
+        margin-bottom: 20px;
+        text-align: center;
+      }
 
       /* Form */
       .form-group { margin-bottom: 25px; }
-      .form-group label { display: block; margin-bottom: 8px; font-weight: 600; color: #cdb79e; }
-      .form-group input[type="number"] {
-        width: 100%; padding: 10px 14px; font-size: 1rem;
-        border-radius: 6px; border: 1px solid #6e523a; background: #2a232e; color: #e6e6e6;
+      .form-group label {
+        display: block;
+        margin-bottom: 8px;
+        font-weight: 600;
+        color: #cdb79e;
       }
-      .form-group input[type="number"]::-webkit-outer-spin-button,
-      .form-group input[type="number"]::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
+      .form-group input {
+        width: 100%;
+        padding: 10px 14px;
+        font-size: 1rem;
+        border-radius: 6px;
+        border: 1px solid #6e523a;
+        background: #2a232e;
+        color: #e6e6e6;
+      }
+      /* hide number spinners */
+      input[type="number"]::-webkit-outer-spin-button,
+      input[type="number"]::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
+      input[type="number"] { -moz-appearance: textfield; }
 
       /* Info badge + tooltip */
       .info { display: inline-flex; align-items: center; gap: 8px; }
@@ -59,7 +109,7 @@
       .info-badge .tooltip {
         visibility: hidden; opacity: 0; position: absolute; bottom: 140%; left: 50%; transform: translateX(-50%);
         background: #1e1a22; color: #e6e6e6; border: 1px solid #6e523a; border-radius: 6px;
-        padding: 8px 10px; width: max(240px, 18ch); text-align: left; font-size: 0.85rem; line-height: 1.25;
+        padding: 8px 10px; width: max(260px, 22ch); text-align: left; font-size: 0.85rem; line-height: 1.25;
         transition: opacity 0.15s ease; pointer-events: none; z-index: 5; box-shadow: 0 2px 8px rgba(0,0,0,0.6);
       }
       .info-badge .tooltip::after {
@@ -92,7 +142,7 @@
       .results .stat { margin-bottom: 10px; font-size: 1rem; color: #e6e6e6; }
       .results .stat span { color: #d8b370; font-weight: 600; }
 
-      /* Progress bar with overlayed percentage */
+      /* Progress bar + overlay label */
       .progress-wrapper { position: relative; }
       .progress-container {
         width: 100%; height: 20px; border: 1px solid #6e523a; border-radius: 10px;
@@ -108,105 +158,97 @@
         text-shadow: 0 1px 2px rgba(0,0,0,0.85), 0 0 4px rgba(0,0,0,0.55); pointer-events: none;
       }
 
-      /* Tip / suggestion */
+      /* Tip */
       .suggestion {
-        display: none; margin-top: 12px; padding: 10px 12px;
-        border: 1px dashed #6e523a; border-radius: 8px;
+        display: none; margin-top: 12px; padding: 10px 12px; border: 1px dashed #6e523a; border-radius: 8px;
         background: rgba(110,82,58,0.10); color: #cdb79e; font-size: 0.95rem;
       }
       .suggestion strong { color: #d8b370; }
 
       @media (max-width: 600px) {
         .card { padding: 20px; }
-        .header h1 { font-size: 1.8rem; }
+        .header h1 { font-size: 1.5rem; }
       }
     </style>
   </head>
   <body>
-    <div class="header">
-      <h1>Quartero's Curios XP Calculator</h1>
-    </div>
-
-    <div class="card">
-      <h2>Plan Your Path to Level&nbsp;100</h2>
-
-      <div class="form-group">
-        <label for="currentLevel">Current Level</label>
-        <input type="number" id="currentLevel" min="1" max="100" />
+    <div class="page">
+      <div class="header">
+        <h1>Quartero's Curios XP Calculator</h1>
       </div>
 
-      <div class="form-group">
-        <label for="currentXPInLevel">Current XP in Level</label>
-        <input type="number" id="currentXPInLevel" min="0" max="999" />
-      </div>
+      <div class="card">
+        <h2>Plan Your Path to Level&nbsp;100</h2>
 
-      <div class="form-group">
-        <label for="winrate">Win Rate (%)</label>
-        <input type="number" id="winrate" min="1" max="100" step="0.1" value="50" />
-      </div>
-
-      <div class="form-group">
-        <label class="info" for="avgDuration">
-          Average Game Duration (minutes)
-          <span class="info-badge" tabindex="0" aria-label="Info about average duration">
-            i
-            <span class="tooltip">
-              Default is <strong>41 minutes</strong> for Normal in patch <strong>7.39</strong>.
-              When <strong>Turbo</strong> is selected, the default is <strong>25 minutes</strong>.
-              You can override either at any time.
-            </span>
-          </span>
-        </label>
-        <input type="number" id="avgDuration" min="10" max="120" step="1" value="41" />
-      </div>
-
-      <div class="form-group toggle-wrapper">
-        <span class="mode-label">Normal</span>
-        <label class="switch">
-          <input type="checkbox" id="modeToggle" />
-          <span class="slider"></span>
-        </label>
-        <span class="mode-label">Turbo</span>
-      </div>
-
-      <div class="form-group">
-        <label for="avgGamesPerDay">Average Games per Day <em>(optional)</em></label>
-        <input type="number" id="avgGamesPerDay" min="0.1" max="24" step="0.1" placeholder="e.g., 2.5" />
-      </div>
-
-      <div class="results">
-        <h3>Results</h3>
-
-        <!-- Progress bar first, with overlayed % -->
-        <div class="progress-wrapper">
-          <div
-            class="progress-container"
-            role="progressbar"
-            aria-valuemin="0"
-            aria-valuemax="100"
-            aria-valuenow="0"
-            aria-label="Completion progress"
-            id="progressContainer"
-          >
-            <div class="progress-bar" id="progressBar"></div>
-          </div>
-          <div class="progress-label" id="progressLabel">0%</div>
+        <div class="form-group">
+          <label for="currentLevel">Current Level</label>
+          <input type="number" id="currentLevel" placeholder="e.g. 37"/>
         </div>
 
-        <div class="stat">XP Remaining: <span id="xpRemaining">0</span></div>
-        <div class="stat">Expected XP per Match: <span id="expectedXP">0</span></div>
-        <div class="stat">Estimated Games Needed: <span id="gamesNeeded">0</span></div>
-        <div class="stat">Estimated Playtime Needed: <span id="timeNeeded">0h 0m</span></div>
+        <div class="form-group">
+          <label for="currentXPInLevel">Current XP in Level</label>
+          <input type="number" id="currentXPInLevel" placeholder="0–999"/>
+        </div>
 
-        <hr style="border: none; border-top: 1px solid #6e523a; margin: 16px 0;" />
+        <div class="form-group">
+          <label for="winrate">Win Rate (%)</label>
+          <input type="number" id="winrate" placeholder="e.g. 45.5"/>
+        </div>
 
-        <div class="stat">Event Days Remaining (until 5 Nov): <span id="daysRemaining">0</span></div>
-        <div class="stat">Required Games/Day to Finish in Time: <span id="requiredPerDay">0</span></div>
-        <div class="stat">Days to Finish at Your Pace: <span id="daysAtPace">—</span></div>
-        <div class="stat">Estimated Finish Date: <span id="finishDate">—</span></div>
-        <div class="stat">Status: <span id="onCourseStatus">—</span></div>
+        <div class="form-group">
+          <label class="info" for="avgDuration">
+            Average Game Duration (minutes)
+            <span class="info-badge" tabindex="0" aria-label="Info about average duration">
+              i
+              <span class="tooltip">
+                Defaults reflect <strong>average durations for patch 7.39</strong>:
+                <strong>41&nbsp;min</strong> (Normal) and <strong>25&nbsp;min</strong> (Turbo).
+                You can override either at any time.
+              </span>
+            </span>
+          </label>
+          <input type="number" id="avgDuration" placeholder="e.g. 38 or 4"/>
+        </div>
 
-        <div id="suggestion" class="suggestion"></div>
+        <div class="form-group toggle-wrapper">
+          <span class="mode-label">Normal</span>
+          <label class="switch">
+            <input type="checkbox" id="modeToggle"/>
+            <span class="slider"></span>
+          </label>
+          <span class="mode-label">Turbo</span>
+        </div>
+
+        <div class="form-group">
+          <label for="avgGamesPerDay">Average Games per Day <em>(optional)</em></label>
+          <input type="number" id="avgGamesPerDay" placeholder="e.g. 2.5"/>
+        </div>
+
+        <div class="results">
+          <h3>Results</h3>
+
+          <div class="progress-wrapper">
+            <div class="progress-container" id="progressContainer">
+              <div class="progress-bar" id="progressBar"></div>
+            </div>
+            <div class="progress-label" id="progressLabel">0%</div>
+          </div>
+
+          <div class="stat">XP Remaining: <span id="xpRemaining">0</span></div>
+          <div class="stat">Expected XP per Match: <span id="expectedXP">0</span></div>
+          <div class="stat">Estimated Games Needed: <span id="gamesNeeded">0</span></div>
+          <div class="stat">Estimated Playtime Needed: <span id="timeNeeded">0h 0m</span></div>
+
+          <hr style="border:none;border-top:1px solid #6e523a;margin:16px 0;"/>
+
+          <div class="stat">Event Days Remaining (until 5 Nov): <span id="daysRemaining">0</span></div>
+          <div class="stat">Required Games/Day to Finish in Time: <span id="requiredPerDay">0</span></div>
+          <div class="stat">Days to Finish at Your Pace: <span id="daysAtPace">—</span></div>
+          <div class="stat">Estimated Finish Date: <span id="finishDate">—</span></div>
+          <div class="stat">Status: <span id="onCourseStatus">—</span></div>
+
+          <div id="suggestion" class="suggestion"></div>
+        </div>
       </div>
     </div>
 
@@ -214,196 +256,136 @@
       (function () {
         const XP_PER_LEVEL = 1000, LEVEL_MAX = 100;
         const XP_NORMAL_WIN = 650, XP_NORMAL_LOSS = 250;
-        const XP_TURBO_WIN = 425, XP_TURBO_LOSS = 175;
+        const XP_TURBO_WIN  = 425, XP_TURBO_LOSS  = 175;
         const TOTAL_XP = LEVEL_MAX * XP_PER_LEVEL;
         const DEFAULT_NORMAL_MIN = 41, DEFAULT_TURBO_MIN = 25;
 
         // Hard-coded event end: 5 Nov 2025 23:59:59 local
         const EVENT_END = new Date(2025, 10, 5, 23, 59, 59);
 
-        const el = id => document.getElementById(id);
-
-        // Results elements
-        const progressContainer = el("progressContainer");
-        const progressBar = el("progressBar");
-        const progressLabel = el("progressLabel");
-
-        const xpRemainingSpan = el("xpRemaining"), expectedXPSpan = el("expectedXP");
-        const gamesNeededSpan = el("gamesNeeded"), timeNeededSpan = el("timeNeeded");
-        const daysRemainingSpan = el("daysRemaining"), requiredPerDaySpan = el("requiredPerDay");
-        const daysAtPaceSpan = el("daysAtPace"), finishDateSpan = el("finishDate");
-        const onCourseStatusSpan = el("onCourseStatus"), suggestion = el("suggestion");
-
+        const el = (id) => document.getElementById(id);
         const modeToggle = el("modeToggle");
-        const avgDurationInput = el("avgDuration");
 
-        // --- Input boundary helpers ---
-        function clamp(val, min, max) {
-          if (isNaN(val)) return NaN;
-          return Math.min(max, Math.max(min, val));
-        }
-        function formatStep(val, step) {
-          if (step && step % 1 !== 0) return (Math.round(val * 10) / 10).toFixed(1);
-          return String(Math.round(val));
-        }
-        /**
-         * Bind an input with clamping and empty behavior.
-         * options: { min, max, step=1, emptyMode: 'min' | 'default' | 'none', emptyValue?: number|string }
+        /** Bind inputs: paste default on blur only when empty.
+         *  AvgDuration now *also* pastes default on empty (41/25) as requested.
          */
-        function bindBoundedNumber(id, options, onChange) {
-          const { min, max, step = 1, emptyMode = 'min', emptyValue = min } = options;
+        function bindLooseNumber(id, { getDefault = () => "", pasteDefaultOnEmpty = true } = {}, onChange) {
           const input = el(id);
-
-          const applyClamp = () => {
-            if (input.value === "") return; // allow empty while editing; blur will handle
-            let v = parseFloat(input.value);
-            if (isNaN(v)) return;
-            const c = clamp(v, min, max);
-            if (c !== v) input.value = formatStep(c, step);
-          };
-
-          input.addEventListener("input", () => {
-            applyClamp();
-            onChange();
-          });
-
+          input.addEventListener("input", onChange);
+          input.addEventListener("change", onChange);
           input.addEventListener("blur", () => {
+            if (!pasteDefaultOnEmpty) return;
             if (input.value === "") {
-              if (emptyMode === 'min') input.value = formatStep(min, step);
-              else if (emptyMode === 'default') input.value = String(emptyValue);
-              // 'none' leaves it empty
+              const v = getDefault();
+              if (v !== undefined && v !== null && v !== "") {
+                input.value = String(v);
+                onChange();
+              }
             }
-            applyClamp();
-            onChange();
           });
-
           return input;
         }
 
-        // Track if user manually edited duration (so we don't overwrite their choice)
-        let userEditedDuration = false;
-        avgDurationInput.addEventListener("input", () => { userEditedDuration = true; });
+        bindLooseNumber("currentLevel",     { getDefault: () => 1 },  calc);
+        bindLooseNumber("currentXPInLevel", { getDefault: () => 0 },  calc);
+        bindLooseNumber("winrate",          { getDefault: () => 50 }, calc);
+        bindLooseNumber("avgGamesPerDay",   { getDefault: () => "", pasteDefaultOnEmpty: false }, calc);
+        bindLooseNumber(
+          "avgDuration",
+          { getDefault: () => (modeToggle.checked ? DEFAULT_TURBO_MIN : DEFAULT_NORMAL_MIN), pasteDefaultOnEmpty: true },
+          calc
+        );
 
-        function maybeSetDefaultDurationForMode() {
-          const turbo = modeToggle.checked;
-          const current = parseFloat(avgDurationInput.value);
-          // Auto-set if not edited yet OR if the current equals the other mode's default
-          if (
-            !userEditedDuration ||
-            (!isNaN(current) &&
-              ((turbo && current === DEFAULT_NORMAL_MIN) ||
-               (!turbo && current === DEFAULT_TURBO_MIN)))
-          ) {
-            avgDurationInput.value = turbo ? DEFAULT_TURBO_MIN : DEFAULT_NORMAL_MIN;
-          }
-        }
-
-        // Wire bounded inputs
-        bindBoundedNumber("currentLevel",     {min:1,   max:100, step:1,   emptyMode:'min'},     calc);
-        bindBoundedNumber("currentXPInLevel",{min:0,   max:999, step:1,   emptyMode:'min'},     calc); // 0–999, snaps to 0
-        bindBoundedNumber("winrate",         {min:1,   max:100, step:0.1, emptyMode:'default', emptyValue:50}, calc); // snaps to 50
-        bindBoundedNumber("avgGamesPerDay",  {min:0.1, max:24,  step:0.1, emptyMode:'none'},    calc); // optional, stays empty
-        bindBoundedNumber("avgDuration",     {min:10,  max:120, step:1,   emptyMode:'min'},     calc); // existing bounds
-
-        // Utils
-        const formatNumber = num => num.toLocaleString();
-        const minutesToHM = mins => {
-          const m = Math.max(0, Math.round(mins));
-          const h = Math.floor(m/60);
-          const rem = m % 60;
+        function numOr(val, fallback) { const v = parseFloat(val); return isNaN(v) ? fallback : v; }
+        const formatNumber = (num) => (isFinite(num) ? num.toLocaleString() : "—");
+        const minutesToHM = (mins) => {
+          const m = Math.max(0, Math.round(isFinite(mins) ? mins : 0));
+          const h = Math.floor(m / 60), rem = m % 60;
           return `${h}h ${rem}m`;
         };
-        const daysBetween = (a,b) => Math.ceil((b-a)/(1000*60*60*24));
+        const daysBetween = (a, b) => Math.ceil((b - a) / (1000 * 60 * 60 * 24));
         const expectedXP = (turbo, wr) =>
-          (wr/100)*(turbo?XP_TURBO_WIN:XP_NORMAL_WIN) +
-          ((100-wr)/100)*(turbo?XP_TURBO_LOSS:XP_NORMAL_LOSS);
+          (wr / 100) * (turbo ? XP_TURBO_WIN : XP_NORMAL_WIN) +
+          ((100 - wr) / 100) * (turbo ? XP_TURBO_LOSS : XP_NORMAL_LOSS);
 
         function calc() {
           const now = new Date();
-
-          // Read inputs
-          let level = +el("currentLevel").value || 0;
-          let xpInLevel = +el("currentXPInLevel").value || 0;
-          let wr = +el("winrate").value || 0;
-          let dur = +el("avgDuration").value || (modeToggle.checked?DEFAULT_TURBO_MIN:DEFAULT_NORMAL_MIN);
-          let gamesPerDay = parseFloat(el("avgGamesPerDay").value);
           const turbo = modeToggle.checked;
 
-          // Clamp (secondary safety)
-          level = Math.min(Math.max(level, 1), LEVEL_MAX);  // 1–100
-          xpInLevel = Math.min(Math.max(xpInLevel, 0), 999); // 0–999
-          wr = Math.min(Math.max(wr, 1), 100);              // 1–100
-          if (!isNaN(gamesPerDay)) {
-            gamesPerDay = Math.min(Math.max(gamesPerDay, 0.1), 24); // 0.1–24
-          }
+          // Read inputs; use defaults only for math when empty/invalid (we do not overwrite typed values except on blur rule)
+          let level      = numOr(el("currentLevel").value, 1);
+          let xpInLevel  = numOr(el("currentXPInLevel").value, 0);
+          let wr         = numOr(el("winrate").value, 50);
 
-          // Progress & pacing
-          let currentXP = Math.min(TOTAL_XP, level*XP_PER_LEVEL + xpInLevel);
-          let xpRem = Math.max(0, TOTAL_XP - currentXP);
-          let expXPmatch = expectedXP(turbo, wr);
-          let gamesNeeded = xpRem>0 && expXPmatch>0 ? Math.ceil(xpRem/expXPmatch) : 0;
-          let progressPct = (currentXP/TOTAL_XP)*100;
-          let totalMin = gamesNeeded*dur;
+          const durRaw = el("avgDuration").value;
+          let dur = durRaw === "" ? (turbo ? DEFAULT_TURBO_MIN : DEFAULT_NORMAL_MIN)
+                                  : numOr(durRaw, turbo ? DEFAULT_TURBO_MIN : DEFAULT_NORMAL_MIN);
+          if (!(dur > 0)) dur = turbo ? DEFAULT_TURBO_MIN : DEFAULT_NORMAL_MIN;
 
-          // Update progress visuals (bar + overlay text)
-          progressBar.style.width = progressPct + "%";
-          progressLabel.textContent = progressPct.toFixed(2) + "%";
-          progressContainer.setAttribute("aria-valuenow", progressPct.toFixed(2));
+          const gpdRaw = el("avgGamesPerDay").value;
+          let gamesPerDay = gpdRaw === "" ? NaN : numOr(gpdRaw, NaN);
 
-          // Primary stats
-          xpRemainingSpan.textContent = formatNumber(xpRem);
-          expectedXPSpan.textContent = Math.round(expXPmatch); // integer XP
-          gamesNeededSpan.textContent = gamesNeeded;
-          timeNeededSpan.textContent = minutesToHM(totalMin);
+          // Math-only safety (does NOT mutate inputs)
+          level = Math.max(1, Math.min(level, LEVEL_MAX));
+          xpInLevel = Math.max(0, Math.min(xpInLevel, 999));
+          wr = Math.max(0, Math.min(wr, 100));
 
-          // Event timing
-          let daysRem = Math.max(0, daysBetween(now, EVENT_END));
-          daysRemainingSpan.textContent = daysRem;
+          const currentXP   = Math.min(TOTAL_XP, level * XP_PER_LEVEL + xpInLevel);
+          const xpRem       = Math.max(0, TOTAL_XP - currentXP);
+          const expXPmatch  = Math.max(0, expectedXP(turbo, wr));
+          const gamesNeeded = xpRem > 0 && expXPmatch > 0 ? Math.ceil(xpRem / expXPmatch) : 0;
+          const progressPct = (currentXP / TOTAL_XP) * 100;
+          const totalMin    = gamesNeeded * dur;
 
-          let reqPerDay = daysRem>0 ? gamesNeeded/daysRem : (gamesNeeded>0 ? Infinity : 0);
-          requiredPerDaySpan.textContent = isFinite(reqPerDay) ? reqPerDay.toFixed(2) : "N/A";
+          el("progressBar").style.width = progressPct + "%";
+          el("progressLabel").textContent = progressPct.toFixed(2) + "%";
+          el("xpRemaining").textContent = formatNumber(xpRem);
+          el("expectedXP").textContent = Math.round(expXPmatch);
+          el("gamesNeeded").textContent = gamesNeeded;
+          el("timeNeeded").textContent = minutesToHM(totalMin);
 
-          // Pace-based projection
+          const daysRem = Math.max(0, daysBetween(now, EVENT_END));
+          el("daysRemaining").textContent = daysRem;
+          const reqPerDay = daysRem > 0 ? gamesNeeded / daysRem : (gamesNeeded > 0 ? Infinity : 0);
+          el("requiredPerDay").textContent = isFinite(reqPerDay) ? reqPerDay.toFixed(2) : "N/A";
+
           if (!isNaN(gamesPerDay) && gamesPerDay > 0) {
             const daysAtPace = Math.ceil(gamesNeeded / gamesPerDay);
-            daysAtPaceSpan.textContent = daysAtPace.toString();
-
-            const finishDate = new Date(now.getTime() + daysAtPace*86400000);
-            const daysSpare = daysRem - daysAtPace;
-            finishDateSpan.textContent =
-              `${finishDate.toLocaleDateString(undefined,{year:"numeric", month:"short", day:"numeric"})} (${daysSpare} days spare)`;
-
-            if (gamesNeeded === 0) onCourseStatusSpan.textContent = "Goal reached 🎉";
-            else if (!isFinite(reqPerDay)) onCourseStatusSpan.textContent = "Event has ended or ends today; goal not reached.";
-            else if (gamesPerDay >= reqPerDay) onCourseStatusSpan.textContent = "On course ✅";
-            else onCourseStatusSpan.textContent = `Needs ${(reqPerDay - gamesPerDay).toFixed(2)} more games/day ⚠️`;
+            el("daysAtPace").textContent = String(daysAtPace);
+            const finishDate = new Date(now.getTime() + daysAtPace * 86400000);
+            el("finishDate").textContent =
+              `${finishDate.toLocaleDateString(undefined,{year:"numeric", month:"short", day:"numeric"})} (${daysRem - daysAtPace} days spare)`;
+            if (gamesNeeded === 0) el("onCourseStatus").textContent = "Goal reached 🎉";
+            else if (!isFinite(reqPerDay)) el("onCourseStatus").textContent = "Event ends today or ended; goal not reached.";
+            else if (gamesPerDay >= reqPerDay) el("onCourseStatus").textContent = "On course ✅";
+            else el("onCourseStatus").textContent = `Needs ${(reqPerDay - gamesPerDay).toFixed(2)} more games/day ⚠️`;
           } else {
-            daysAtPaceSpan.textContent = "—";
-            finishDateSpan.textContent = "—";
-            if (gamesNeeded === 0) onCourseStatusSpan.textContent = "Goal reached 🎉";
-            else if (!isFinite(reqPerDay)) onCourseStatusSpan.textContent = "Event has ended or ends today; goal not reached.";
-            else onCourseStatusSpan.textContent = "Provide avg games/day to check status.";
+            el("daysAtPace").textContent = "—";
+            el("finishDate").textContent = "—";
+            if (gamesNeeded === 0) el("onCourseStatus").textContent = "Goal reached 🎉";
+            else if (!isFinite(reqPerDay)) el("onCourseStatus").textContent = "Event ends today or ended; goal not reached.";
+            else el("onCourseStatus").textContent = "Provide avg games/day to check status.";
           }
 
-          // --- Faster alternative tip (only the other mode) ---
+          // Optional suggestion: other mode time using patch-7.39 averages
           const normalExp = expectedXP(false, wr);
           const turboExp  = expectedXP(true,  wr);
           const gamesNormal = xpRem>0 && normalExp>0 ? Math.ceil(xpRem/normalExp) : 0;
           const gamesTurbo  = xpRem>0 && turboExp>0  ? Math.ceil(xpRem/turboExp)  : 0;
-
           const totalMinNormal = gamesNormal * DEFAULT_NORMAL_MIN;
           const totalMinTurbo  = gamesTurbo  * DEFAULT_TURBO_MIN;
 
+          const suggestion = document.getElementById("suggestion");
           suggestion.style.display = "none";
           suggestion.innerHTML = "";
 
           if (gamesNeeded > 0) {
-            if (turbo) {
+            if (modeToggle.checked) {
               if (totalMinNormal > 0 && totalMinNormal < totalMin) {
                 const saved = totalMin - totalMinNormal;
                 const pct = (saved / totalMin) * 100;
                 suggestion.innerHTML =
-                  `Tip: <strong>Normal</strong> with default ${DEFAULT_NORMAL_MIN}m would be <strong>~${pct.toFixed(0)}% faster</strong> (${minutesToHM(saved)} saved).`;
+                  `Tip: <strong>Normal</strong> (~41m) could be ~<strong>${pct.toFixed(0)}% faster</strong> (${minutesToHM(saved)} saved).`;
                 suggestion.style.display = "block";
               }
             } else {
@@ -411,20 +393,30 @@
                 const saved = totalMin - totalMinTurbo;
                 const pct = (saved / totalMin) * 100;
                 suggestion.innerHTML =
-                  `Tip: <strong>Turbo</strong> with default ${DEFAULT_TURBO_MIN}m would be <strong>~${pct.toFixed(0)}% faster</strong> (${minutesToHM(saved)} saved).`;
+                  `Tip: <strong>Turbo</strong> (~25m) could be ~<strong>${pct.toFixed(0)}% faster</strong> (${minutesToHM(saved)} saved).`;
                 suggestion.style.display = "block";
               }
             }
           }
         }
 
-        // Bind events
-        const inputsToWatch = ["currentLevel","currentXPInLevel","winrate","avgDuration","avgGamesPerDay","modeToggle"].map(el);
-        ["input","change"].forEach(evt => inputsToWatch.forEach(inp => inp.addEventListener(evt, calc)));
-        modeToggle.addEventListener("change", () => { maybeSetDefaultDurationForMode(); calc(); });
+        // Show sensible defaults on first load
+        function setInitialDefaults() {
+          el("currentLevel").value = "1";
+          el("currentXPInLevel").value = "0";
+          el("winrate").value = "50";
+          el("avgDuration").value = String(DEFAULT_NORMAL_MIN); // Default load in Normal
+          // avgGamesPerDay stays empty (optional)
+        }
 
-        // Init with Normal default visible
-        avgDurationInput.value = DEFAULT_NORMAL_MIN;
+        // Recalculate on interactions
+        modeToggle.addEventListener("change", calc);
+        ["currentLevel","currentXPInLevel","winrate","avgDuration","avgGamesPerDay"].forEach(id=>{
+          el(id).addEventListener("input", calc);
+          el(id).addEventListener("change", calc);
+        });
+
+        setInitialDefaults();
         calc();
       })();
     </script>
